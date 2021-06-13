@@ -4,7 +4,7 @@ import os
 dotenv.load_dotenv(".env")
 
 dbname = os.environ["DBNAME"]
-user = os.environ["USER"]
+user = os.environ["USER_DB"]
 password = os.environ["PASSWORD"]
 host = os.environ["HOST"]
 

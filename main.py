@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, redirect
+from flask import Flask, request, make_response, render_template
 from html_pages import login_html, signup_html, cabinet_html
 from work_with_db import *
 
@@ -69,10 +69,9 @@ def cabinet():
         else:
             return "Your post is NOT added"
     else:
-        if request.cookies.get("email") and request.cookies.get("password"):
-            return cabinet_html
-        else:
-            return redirect("/login", code=302)
+
+        isautorizate =  bool(request.cookies.get("email") and request.cookies.get("password"))
+        return render_template("cabinet_html.html", isautorizate=isautorizate)
 
 if __name__ == "__main__":
 	app.run(debug=True)
