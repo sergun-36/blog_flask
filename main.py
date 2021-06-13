@@ -1,70 +1,22 @@
-from flask import Flask, request
-import psycopg2
-from html_pages import login_html, signup_html
-from settings import dev_db_settings
+from flask import Flask, request, make_response, redirect
+from html_pages import login_html, signup_html, cabinet_html
+from work_with_db import *
 
+def create_list_html(posts):
+    text_post = ""
+    for post in posts:
+        text_post+=f"<li><b>{post[0]}</b><br/>{post[1]}</li>"
+    return text_post
 
 app = Flask(__name__)
 
 
-def connect_db(db_data):
-    conn = psycopg2.connect(**db_data)
-    return conn
-
-
-def write_user(email, password):
-    try:    
-        conn = connect_db(dev_db_settings)
-        cursor = conn.cursor()
-        cursor.execute(f"INSERT INTO users (email, password) VALUES('{email}', '{password}')")
-        conn.commit()
-        return True
-    except Exception as ex:
-        print(f"There is problem with database {ex}")
-        return False
-    finally:
-        cursor.close()
-        conn.close()
-    
-
-
-def user_exist_in_db(email, password):
-    try:
-        conn = connect_db(dev_db_settings)
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM users WHERE email='{email}' and password='{password}'")
-        result = cursor.fetchone()
-        if result:
-            return True
-        else:
-            return False
-
-    except Exception as ex:
-        print(f"There is problem with database {ex}")
-
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def select_all():
-    try:
-        conn = connect_db(dev_db_settings)
-        cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM users")
-        result = cursor.fetchall()
-        return result
-
-    except Exception as ex:
-        print(f"There is problem with database {ex}")
-        
-    finally:
-        cursor.close()
-        conn.close()
-
 @app.route("/")
 def hello_world():
-    return """
+    posts = select_all_posts()
+    text_posts = create_list_html(posts)
+    return f"""
+        <ul>{text_posts}</ul>
         <p>
             <a href="http://127.0.0.1:5000/signup">Sign up</a>
         </p>
@@ -86,6 +38,7 @@ def signup():
     else:
         return signup_html
 
+
 @app.route("/login", methods = ["get", "post"])
 def login():
     if request.method == "POST":
@@ -93,7 +46,10 @@ def login():
         password = request.form.get("password")
         user_exist = user_exist_in_db(email, password)
         if user_exist:
-            return "<h1>Welcome to site</h1>"
+            resp = make_response("<h1>Welcome to site</h1>")
+            resp.set_cookie("email", email )
+            resp.set_cookie("password", password, max_age = 60*60*24)
+            return resp
         else:
             if user_exist == None:
                 return "There is problem with database"
@@ -101,6 +57,22 @@ def login():
 
     else:
         return login_html
+
+@app.route("/cabinet", methods = ["get", "post"])
+def cabinet():
+    if request.method == "POST":
+        title = request.form.get("title")
+        text = request.form.get("text")
+        result_post = write_new_post(title, text)
+        if result_post:
+            return "Your post is added"
+        else:
+            return "Your post is NOT added"
+    else:
+        if request.cookies.get("email") and request.cookies.get("password"):
+            return cabinet_html
+        else:
+            return redirect("/login", code=302)
 
 if __name__ == "__main__":
 	app.run(debug=True)
