@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, render_template
+from flask import Flask, request, make_response, render_template, redirect
 from work_with_db import *
 
 def isautorizate(request):
@@ -39,7 +39,7 @@ def login():
         password = request.form.get("password")
         user_exist = user_exist_in_db(email, password)
         if user_exist:
-            resp = make_response("<h1>Welcome to site</h1>")
+            resp = make_response(redirect("/cabinet", code=302))#("<h1>Welcome to site</h1><a href='/cabinet'>To cabinet</a>")
             resp.set_cookie("email", email )
             resp.set_cookie("password", password, max_age = 60*60*24)
             return resp

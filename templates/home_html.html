@@ -1,11 +1,6 @@
-<!DOCTYPE html>   
-<html>   
-<head>  
+{% extends "base_nav.html" %}
 
-    <title> Home </title>  
-
-</head>    
-<body> 
+{% block content %} 
 		<h1>Hello {{ email }}</h1>
 		<h3> This is all posts </h3>
 		<ul>
@@ -14,11 +9,5 @@
         	<i>{{ post [1] }}</i>
         </li>
         {% endfor %}
-        <p>
-            <a href="http://127.0.0.1:5000/signup">Sign up</a>
-        </p>
-        <p>
-            <a href="http://127.0.0.1:5000/login">Log in</a>
-        </p>
-</body>     
-</html>        
+
+{% endblock %}      
