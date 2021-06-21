@@ -49,7 +49,7 @@ def login():
             return "Such user does not exist"
 
     else:
-        return render_template("login_html.html")
+        return render_template("login_html.html", isautorizate=isautorizate(request))
 
 @app.route("/cabinet", methods = ["get", "post"])
 def cabinet():

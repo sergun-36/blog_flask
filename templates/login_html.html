@@ -2,6 +2,9 @@
 
 {% block content%}    
     <h1>Log in</h1>
+    {% if isautorizate %}
+    <p> You have autorizated yet </p>
+    {% else %}
     <form action="" method="post">  
         <p>
             <label for="email">Email : </label>   
@@ -14,4 +17,5 @@
         <p>
             <input type="submit">
         </p>
+    {% endif %}
 {% endblock %}
