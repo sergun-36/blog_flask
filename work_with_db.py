@@ -86,3 +86,4 @@ def write_new_post(title, text):
     finally:
         cursor.close()
         conn.close()
+

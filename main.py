@@ -1,28 +1,21 @@
-from flask import Flask, request, make_response, redirect
-from html_pages import login_html, signup_html, cabinet_html
+from flask import Flask, request, make_response, render_template, redirect
 from work_with_db import *
 
-def create_list_html(posts):
-    text_post = ""
-    for post in posts:
-        text_post+=f"<li><b>{post[0]}</b><br/>{post[1]}</li>"
-    return text_post
+def isautorizate(request):
+    return bool(request.cookies.get("email") and request.cookies.get("password"))
+    
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 
 
 @app.route("/")
 def hello_world():
     posts = select_all_posts()
-    text_posts = create_list_html(posts)
-    return f"""
-        <ul>{text_posts}</ul>
-        <p>
-            <a href="http://127.0.0.1:5000/signup">Sign up</a>
-        </p>
-        <p>
-            <a href="http://127.0.0.1:5000/login">Log in</a>
-        </p>"""
+    if isautorizate(request):
+        email = request.cookies.get("email")
+    else:
+        email = "Stranger"
+    return render_template("home_html.html", email=email, posts=posts)
 
 
 @app.route("/signup", methods = ["get", "post"])
@@ -36,7 +29,7 @@ def signup():
         else:
             return "You don't sign up. Try one more"
     else:
-        return signup_html
+        return render_template("signup_html.html")
 
 
 @app.route("/login", methods = ["get", "post"])
@@ -46,7 +39,7 @@ def login():
         password = request.form.get("password")
         user_exist = user_exist_in_db(email, password)
         if user_exist:
-            resp = make_response("<h1>Welcome to site</h1>")
+            resp = make_response(redirect("/cabinet", code=302))#("<h1>Welcome to site</h1><a href='/cabinet'>To cabinet</a>")
             resp.set_cookie("email", email )
             resp.set_cookie("password", password, max_age = 60*60*24)
             return resp
@@ -56,7 +49,7 @@ def login():
             return "Such user does not exist"
 
     else:
-        return login_html
+        return render_template("login_html.html", isautorizate=isautorizate(request))
 
 @app.route("/cabinet", methods = ["get", "post"])
 def cabinet():
@@ -69,10 +62,9 @@ def cabinet():
         else:
             return "Your post is NOT added"
     else:
-        if request.cookies.get("email") and request.cookies.get("password"):
-            return cabinet_html
-        else:
-            return redirect("/login", code=302)
+        islogin =  isautorizate(request)
+        email = request.cookies.get("email")
+        return render_template("cabinet_html.html", isautorizate=islogin, email=email)
 
 if __name__ == "__main__":
 	app.run(debug=True)
