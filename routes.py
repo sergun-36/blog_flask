@@ -66,5 +66,3 @@ def cabinet():
         email = request.cookies.get("email")
         return render_template("cabinet_html.html", isautorizate=islogin, email=email)
 
-if __name__ == "__main__":
-	app.run(debug=True)
