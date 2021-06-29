@@ -5,8 +5,8 @@
 		<h3> This is all posts </h3>
 		<ul>
 		{% for post in  posts %}
-        <li><b>{{ post[0] }}</b><br/>
-        	<i>{{ post [1] }}</i>
+        <li><b>{{ post.title }}</b><br/>
+        	<i>{{ post.text }}</i>
         </li>
         {% endfor %}
 
