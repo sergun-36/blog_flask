@@ -2,11 +2,18 @@
     
 {% block content %}    
     <h1>Sign up</h1> 
-    <form action="" method="post">  
+    <form action="" method="post">
+        <p>
+            <label for="name">Name : </label>   
+            <input type="text" placeholder="Enter Name" name="name" >
+        </p>  
         <p>
             <label for="email">Email : </label>   
             <input type="text" placeholder="Enter Email" name="email" >
         </p>
+        {% if user_exist %}
+        <p>Such user exists</p>
+        {% endif %}
         <p>  
             <label>Password : </label>   
             <input type="password" placeholder="Enter Password" name="password">
